@@ -39,9 +39,16 @@ public:
 	void SelectSort();
 	void HeapSort();
 	void InsertionSort();
+
+	void merge(int left, int right, vector<T>& array_merge);
 	void MergeSort();
+
+	void quick(int left, int right);
 	void QuickSort();
+
+	void insertionsort(int begin, int step);
 	void HillSort();
+
 	void CountSort();
 	void BaseSort();
 	void BucketSort();

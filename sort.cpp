@@ -111,21 +111,171 @@ void Sort<T>::HeapSort() {
 
 template <class T>
 void Sort<T>::InsertionSort() {
+	LARGE_INTEGER t1, t2, tc;
+	QueryPerformanceFrequency(&tc);
+	QueryPerformanceCounter(&t1);
 
+	int len = array.size();
+	if (len < 2) return;
+	int i = 1, j = 0, num = 0;
+	for (; i < len; ++i) {
+		num = array[i];
+		for (j = i - 1; j >= 0; --j) {
+			if (num >= array[j]) { 
+				array[j + 1] = num; 
+				break; 
+			}
+			else {
+				array[j + 1] = array[j];
+				if (j == 0) array[j] = num;
+			}
+		}
+	}
+
+	QueryPerformanceCounter(&t2);
+	time = (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
+
+	cout << "---------InsertionSort--------" << endl;
 }
 
 template <class T>
 void Sort<T>::MergeSort() {
+	LARGE_INTEGER t1, t2, tc;
+	QueryPerformanceFrequency(&tc);
+	QueryPerformanceCounter(&t1);
 
+	int len = array.size();
+	if (len < 2) return;
+	vector<T> array_merge(len / 2 + 1);
+	merge(0, len, array_merge);
+
+	QueryPerformanceCounter(&t2);
+	time = (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
+
+	cout << "-----------MergeSort----------" << endl;
+}
+
+template <class T>
+void Sort<T>::merge(int left, int right, vector<T> &array_merge) {
+	if (left == right - 1) return;
+	int mid = (left + right) / 2;
+	merge(left, mid, array_merge);
+	merge(mid, right, array_merge);
+	int i = left, l = left, r = mid;
+	for (; i < mid; ++i) {
+		array_merge[i - left] = array[i];
+	}
+	for (i = left; i < right; ++i) {
+		if (l >= mid && r < right) {
+			array[i] = array[r];
+			++r;
+			continue;
+		}
+		if(l < mid && r >= right) {
+			array[i] = array_merge[l - left];
+			++l;
+			continue;
+		}
+		if (array_merge[l - left] <= array[r]) {
+			array[i] = array_merge[l - left];
+			++l;
+		}
+		else {
+			array[i] = array[r];
+			++r;
+		}
+	}
 }
 
 template <class T>
 void Sort<T>::QuickSort() {
+	LARGE_INTEGER t1, t2, tc;
+	QueryPerformanceFrequency(&tc);
+	QueryPerformanceCounter(&t1);
 
+	int len = array.size();
+	if (len < 2) return;
+	quick(0, len);
+
+	QueryPerformanceCounter(&t2);
+	time = (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
+
+	cout << "-----------QuickSort----------" << endl;
 }
 
 template <class T>
-void Sort<T>::HillSort() {}
+void Sort<T>::quick(int left, int right) {
+	if (right - left <= 1) return;
+	int mid = (left + right) / 2;
+	int num = array[mid];//任取轴点元素，一般来说随机抽取比较好一点
+	int begin = left, end = right - 1, now = 0;
+	swap(array[mid], array[begin]);
+	while (begin != end) {
+		if (now == 0) {
+			if (array[end] > num) --end;
+			else {
+				array[begin++] = array[end];
+				now = 1;
+			}
+		}
+		else {
+			if (array[begin] <= num) ++begin;
+			else {
+				array[end--] = array[begin];
+				now = 0;
+			}
+		}
+	}
+	array[begin] = num;
+	quick(left, begin);
+	quick(begin, right);
+}
+
+template <class T>
+void Sort<T>::HillSort() {
+	LARGE_INTEGER t1, t2, tc;
+	QueryPerformanceFrequency(&tc);
+	QueryPerformanceCounter(&t1);
+
+	int len = array.size();
+	if (len < 2) return;
+	vector<int> step;
+	int num = 1, i = 1;
+	while (num < len) {
+		step.push_back(num);
+		if (i % 2 == 0) num = 9 * (((int)pow(2, i)) - ((int)pow(2, i / 2))) + 1;
+		else num = 8 * ((int)pow(2, i)) - 6 * ((int)pow(2, (i + 1) / 2)) + 1;
+		++i;
+	}
+	for(num = step.size() - 1; num >= 0; --num) {
+		for (i = 0; i < step[num]; ++i) {
+			insertionsort(i, step[num]);
+		}
+	}
+
+	QueryPerformanceCounter(&t2);
+	time = (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
+
+	cout << "-----------HillSort-----------" << endl;
+}
+
+template <class T>
+void Sort<T>::insertionsort(int begin, int step) {
+	int i = begin + step, j = 0, num = 0;
+	for (; i < array.size(); i += step) {
+		num = array[i];
+		for (j = i - step; j >= 0; j -= step) {
+			if (num >= array[j]) {
+				array[j + step] = num;
+				break;
+			}
+			else {
+				array[j + step] = array[j];
+				if (j == 0) array[j] = num;
+			}
+		}
+	}
+}
 
 template <class T>
 void Sort<T>::CountSort() {}
